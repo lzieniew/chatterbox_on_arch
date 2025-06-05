@@ -3,7 +3,7 @@ import torch
 from chatterbox.tts import ChatterboxTTS
 
 
-AUDIO_PROMPT_PATH = "voices/ballen.wav"
+AUDIO_PROMPT_PATH = "voices/torvalds.wav"
 
 
 def chunk_text(text, initial_chunk_size=400):
@@ -81,6 +81,7 @@ def generate_chunked_audio(text, output_file="output.wav", chunk_size=400):
     audio_chunks = []
     for i, chunk in enumerate(chunks):
         print(f"Processing chunk {i+1}/{len(chunks)}")
+        print(chunk)
         wav = model.generate(
             chunk,
             audio_prompt_path=AUDIO_PROMPT_PATH,
@@ -108,29 +109,33 @@ if __name__ == "__main__":
     # Example text (you can replace this with your longer text)
 
     text = """
-    This combined script does the following:
 
-Preserves your chunking logic - The chunk_text function remains exactly as you had it, splitting text at sentence boundaries with dynamic sizing.
-Device detection - Automatically detects and uses the best available device (CUDA, MPS, or CPU).
-Chunked audio generation - The generate_chunked_audio function:
+> The three of us all have new syscalls planned for 6.11. Arnd suggested
+> that we coordinate to deconflict, to make the merge easier.
 
-Splits the input text into chunks
-Generates TTS audio for each chunk individually
-Concatenates all audio chunks using torch.cat()
-Saves the merged result to a single audio file
+Nobody has explained to me what has changed since your last vdso
+getrandom, and I'm not planning on pulling it unless that fundamental
+flaw is fixed.
 
+Why is this _so_ critical that it needs a vdso?
 
-Progress tracking - Shows which chunk is being processed and total progress.
+Why isn't user space just doing it itself?
 
-The main advantages of this approach:
+What's so magical about this all?
 
-Memory efficient - Processes text in manageable chunks rather than all at once
-Handles long texts - Can process very long documents without overwhelming the TTS model
-Preserves sentence boundaries - Your chunking logic ensures natural breaks
-Single output file - All chunks are merged into one continuous audio file
+This all seems entirely pointless to me still, because it's optimizing
+something that nobody seems to care about, adding new VM
+infrastructure, new magic system calls, yadda yadda.
 
-You can adjust the chunk_size parameter based on your TTS model's optimal input length and available memory. Smaller chunks use less memory but may have more processing overhead, while larger chunks are more efficient but require more memory.
-    """
+I was very sceptical last time, and absolutely _nothing_ has changed.
+Not a peep on why it's now suddenly so hugely important again.
+
+We don't add stuff "just because we can". We need to have a damn good
+reason for it. And I still don't see the reason, and I haven't seen
+anybody even trying to explain the reason.
+
+              Linus
+        """
 
     # Generate audio with custom chunk size and output file
     generate_chunked_audio(text, "merged_output.wav", chunk_size=300)
